@@ -1,25 +1,13 @@
 import streamlit as st
-import anamnesi  # Importa il modulo che abbiamo appena creato
+import anamnesi  # Modulo di anagrafica, anamnesi ed emocromo avanzato
 
-st.title("Gestione Clinica Mieloma Multiplo")
+# Configurazione della pagina (deve essere il primo comando Streamlit)
+st.set_page_config(
+    page_title="2gether - Decision Support System",
+    page_icon="🩺",
+    layout="wide"
+)
 
-# Richiama la funzione unificata per la raccolta dati e la valutazione
-dati_paziente = anamnesi.render_anamnesi_e_valutazione(sigla_organo="MM", prefix="mm")
-
-# Pulsante per la generazione del referto discorsivo medico-legale
-if st.button("Genera Referto PDF / Testuale"):
-    if dati_paziente["nome"] and dati_paziente["cognome"]:
-        referto_generato = anamnesi.formatta_anamnesi_per_pdf_unificata(dati_paziente)
-        
-        st.success("Referto generato con successo!")
-        st.text_area("Anteprima Referto Medico-Legale", referto_generato, height=350)
-        
-        # Opzionale: Download diretto come file di testo/pdf
-        st.download_button(
-            label="Scarica Referto (TXT)",
-            data=referto_generato,
-            file_name=f"Referto_{dati_paziente['cognome']}_{dati_paziente['id_univoco']}.txt",
-            mime="text/plain"
-        )
-    else:
-        st.warning("Inserisci almeno Nome e Cognome del paziente per generare il referto.")
+# Iniezione di CSS personalizzato per il posizionamento e lo stile del logo in alto a destra
+st.markdown(
+    """
