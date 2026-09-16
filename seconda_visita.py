@@ -3,7 +3,7 @@ import streamlit as st
 def render_seconda_visita(prefix="seconda_visita"):
     """
     Rende l'interfaccia per la gestione della Seconda Visita e degli accertamenti diagnostici 
-    ulteriori (imaging, esami di laboratorio avanzati per gammonpatie) prescritti in caso di 
+    ulteriori (imaging, esami di laboratorio avanzati per gammopatie) prescritti in caso di 
     dubbio o completamento stadiativo nel Mieloma Multiplo.
     """
     st.subheader("🔍 Seconda Visita & Accertamenti Diagnostici Ulteriori")
@@ -66,7 +66,7 @@ def render_seconda_visita(prefix="seconda_visita"):
             "TC Total-Body Low-Dose (gold standard scheletrico)",
             "Risonanza Magnetica (RM) colonna/bacino o cranio",
             "PET-TC con 18F-FDG",
-            "Radiografia scheletrica convenzionale (Rx scheletro in toto - obsoleto ma valutato)"
+            "Radiografia scheletrica convenzionale (Rx scheletro in toto)"
         ],
         default=["TC Total-Body Low-Dose (gold standard scheletrico)"],
         key=f"{prefix}_imaging_list"
@@ -119,14 +119,14 @@ def render_seconda_visita(prefix="seconda_visita"):
         key=f"{prefix}_note_2v"
     )
 
-    # Struttura dati da restituire al "cervellone" (app.py)
+    # Struttura dati pulita e priva di errori di variabili locali
     seconda_visita_info = {
         "laboratorio_avanzato": {
             "proteinuria_24h": proteinuria_24h,
             "catene_kappa": catene_kappa,
             "catene_lambda": catene_lambda,
             "rapporto_flc": rapporto_flc,
-            "immunofissazione_siero": immunofissazione_siera if 'immunofissazione_siera' in locals() else immunofissazione_siero,
+            "immunofissazione_siero": immunofissazione_siero,
             "beta2_microglobulina": beta2_microglobulina
         },
         "imaging": {
