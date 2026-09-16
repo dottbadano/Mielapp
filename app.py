@@ -4,6 +4,7 @@ import anamnesi
 import seconda_visita
 import istologico
 import trattamenti
+import follow_up  # Importazione del modulo follow-up
 
 # Configurazione della pagina Streamlit
 st.set_page_config(
@@ -15,7 +16,7 @@ st.set_page_config(
 # 1. Renderizza l'intestazione brandizzata in alto a destra (da utils.py)
 utils.render_header_brand()
 
-# 2. Inizializzazione dello Session State per i dati globali dei vari moduli
+# 2. Inizializzazione dello Session State per i dati globali di tutti i moduli
 if "paziente_info" not in st.session_state:
     st.session_state["paziente_info"] = {
         "nome": "",
@@ -35,6 +36,9 @@ if "istologico_info" not in st.session_state:
 
 if "trattamento_info" not in st.session_state:
     st.session_state["trattamento_info"] = {}
+
+if "follow_up_info" not in st.session_state:
+    st.session_state["follow_up_info"] = {}
 
 # 3. Sidebar per la navigazione tra i moduli del percorso clinico
 st.sidebar.title("Navigazione Myel-UP")
@@ -92,9 +96,18 @@ elif scelta_modulo == "Seconda Visita & Rivalutazione":
 
 elif scelta_modulo == "Follow-up & Report Unificato":
     st.header("Follow-up & Esportazione Report Unificato")
-    st.write("Verifica il riepilogo globale dai moduli attivi e genera il referto clinico stampabile.")
+    st.write("Gestione del monitoraggio clinico post-trattamento e generazione del referto globale.")
     
-    # Recupero in modo sicuro dei testi formattati dai singoli moduli
+    # Richiamiamo l'interfaccia di follow-up passando i dati del trattamento
+    st.session_state["follow_up_info"] = follow_up.render_follow_up(
+        st.session_state["trattamento_info"], 
+        prefix="follow_up"
+    )
+    
+    st.markdown("---")
+    st.subheader("📋 Esportazione Report Clinico Globale")
+    
+    # Recupero in modo sicuro dei testi formattati da tutti i moduli
     testo_anamnesi_report = anamnesi.formatta_anamnesi_per_pdf_unificata(st.session_state["paziente_info"])
     
     testo_seconda_visita_report = seconda_visita.formatta_seconda_visita_per_pdf(st.session_state["seconda_visita_info"]) if st.session_state.get("seconda_visita_info") else "Seconda visita non registrata."
@@ -103,12 +116,15 @@ elif scelta_modulo == "Follow-up & Report Unificato":
     
     testo_trattamenti_report = trattamenti.formatta_trattamenti_per_pdf(st.session_state["trattamento_info"]) if st.session_state.get("trattamento_info") else "Trattamento non registrato."
 
-    # Dizionario globale che unisce tutti i moduli per l'export
+    testo_follow_up_report = follow_up.formatta_follow_up_per_pdf(st.session_state["follow_up_info"]) if st.session_state.get("follow_up_info") else "Follow-up non registrato."
+
+    # Dizionario globale che unisce tutti i moduli per l'export unificato
     moduli_per_report = {
         "Anamnesi & Clinica": testo_anamnesi_report,
         "Seconda Visita & Diagnostica": testo_seconda_visita_report,
         "Quadro Istologico & FISH": testo_istologico_report,
-        "Programma Terapeutico & Fase 3": testo_trattamenti_report
+        "Programma Terapeutico & Fase 3": testo_trattamenti_report,
+        "Follow-up & Monitoraggio": testo_follow_up_report
     }
     
     if st.button("Genera Report Clinico Globale"):
