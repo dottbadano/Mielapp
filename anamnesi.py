@@ -189,7 +189,6 @@ def render_anagrafica_e_anamnesi_unificata(sigla_organo="MM", prefix="mm"):
             format_func=lambda x: x[0], key=f"{prefix}_g8_6"
         )[1]
 
-        # Item 7: L'età viene calcolata automaticamente dall'anagrafica
         if eta >= 85:
             g8_q7 = 0
             st.text("7. Età del paziente: 85 anni o più (Punteggio G8 assegnato: 0)")
@@ -219,15 +218,15 @@ def render_anagrafica_e_anamnesi_unificata(sigla_organo="MM", prefix="mm"):
         st.write("Spunta le condizioni patologiche presenti nell'anamnesi del paziente:")
         
         c_infarto = st.checkbox("Infarto miocardico pregresso (1 punto)", key=f"{prefix}_cc_inf")
-        c_ scompenso = st.checkbox("Scompenso cardiaco congestizio (1 punto)", key=f"{prefix}_cc_sco")
+        c_scompenso = st.checkbox("Scompenso cardiaco congestizio (1 punto)", key=f"{prefix}_cc_sco")
         c_vascolare = st.checkbox("Malattia vascolare periferica (1 punto)", key=f"{prefix}_cc_vas")
-        c_c, cereb = st.checkbox("Malattia cerebrovascolare / TIA / Ictus (1 punto)", key=f"{prefix}_cc_cer")
+        c_cereb = st.checkbox("Malattia cerebrovascolare / TIA / Ictus (1 punto)", key=f"{prefix}_cc_cer")
         c_demenza = st.checkbox("Demenza (1 punto)", key=f"{prefix}_cc_dem")
         c_bpco = st.checkbox("Malattia polmonare cronica / BPCO (1 punto)", key=f"{prefix}_cc_bpc")
         c_connettivo = st.checkbox("Malattia del tessuto connettivo / Reumatologica (1 punto)", key=f"{prefix}_cc_con")
         c_ulcera = st.checkbox("Ulcera peptica (1 punto)", key=f"{prefix}_cc_ulc")
-        c_fegato_ lieve = st.checkbox("Epatopatia cronica lieve (1 punto)", key=f"{prefix}_cc_feg_l")
-        c_diabete = st.checkbox("Diabete mellito (senza danno d'organo = 1 pto / con danno = 2 pti)", [("Assente", 0), ("Senza complicanze d'organo (1 pto)", 1), ("Con complicanze d'organo (2 pti)", 2)], format_func=lambda x: x[0], key=f"{prefix}_cc_diab")
+        c_fegato_lieve = st.checkbox("Epatopatia cronica lieve (1 punto)", key=f"{prefix}_cc_feg_l")
+        c_diabete = st.selectbox("Diabete mellito", [("Assente", 0), ("Senza complicanze d'organo (1 pto)", 1), ("Con complicanze d'organo (2 pti)", 2)], format_func=lambda x: x[0], key=f"{prefix}_cc_diab")
         
         c_emiplegia = st.checkbox("Emiplegia o paraplegia (2 punti)", key=f"{prefix}_cc_emi")
         c_renale = st.checkbox("Malattia renale moderata o grave (2 punti)", key=f"{prefix}_cc_ren")
@@ -237,12 +236,11 @@ def render_anagrafica_e_anamnesi_unificata(sigla_organo="MM", prefix="mm"):
         c_metastasi = st.checkbox("Tumore solido metastatico (6 punti)", key=f"{prefix}_cc_met")
         c_aids = st.checkbox("Infezione da HIV / AIDS (6 punti)", key=f"{prefix}_cc_aids")
 
-        # Calcolo base Charlson dalle spunte
         charlson_base = (
             (1 if c_infarto else 0) +
             (1 if c_scompenso else 0) +
             (1 if c_vascolare else 0) +
-            (1 if c_c, cereb else 0) +
+            (1 if c_cereb else 0) +
             (1 if c_demenza else 0) +
             (1 if c_bpco else 0) +
             (1 if c_connettivo else 0) +
@@ -337,7 +335,6 @@ def render_anagrafica_e_anamnesi_unificata(sigla_organo="MM", prefix="mm"):
 
     esami_finali_consigliati = []
     
-    # Completamento laboratori mancanti
     if not flag_spep_eseguita:
         esami_finali_consigliati.append("Completare Laboratorio: Elettroforesi sieroproteica (SPEP)")
     if not flag_ife_siero_eseguita:
@@ -347,11 +344,9 @@ def render_anagrafica_e_anamnesi_unificata(sigla_organo="MM", prefix="mm"):
     if not flag_bence_eseguita:
         esami_finali_consigliati.append("Completare Laboratorio: Proteinuria di Bence-Jones / 24 ore")
 
-    # Completamento diagnostica / radiologia mancante
     if not flag_tc_low_dose and not flag_rx_scheletro and not flag_rm_colonna:
         esami_finali_consigliati.append("Completare Diagnostica: TC total-body a basso dosaggio (WBLDCT)")
 
-    # Istologia midollare
     if merita_biopsia:
         st.success("✅ **Indicazione Ematologica:** Criteri di danno d'organo / IMWG soddisfatti. **Indicato completamento con Biopsia Osteomidollare (BOM).**")
         esami_finali_consigliati.append("Esecuzione Biopsia Osteomidollare (BOM) con aspirato per studio citofluorimetrico e FISH")
