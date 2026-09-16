@@ -1,9 +1,9 @@
 import streamlit as st
 
-def render_anagrafica_e_anamnesi_unificata(sigla_organo="V", prefix="vescica"):
+def render_anagrafica_e_anamnesi_unificata(sigla_organo="MM", prefix="mm"):
     """
     Rende l'interfaccia unificata di anagrafica, anamnesi, scale geriatriche/cliniche (G8, Charlson, ECOG)
-    e un emocromo avanzato con formula completa ed esami ematochimici di base.
+    e un emocromo avanzato con formula completa ed esami ematochimici di base per Myel-UP.
     """
     st.subheader("Anagrafica Paziente")
     col1, col2, col3 = st.columns(3)
@@ -76,6 +76,7 @@ def render_anagrafica_e_anamnesi_unificata(sigla_organo="V", prefix="vescica"):
     with col_e3:
         ldh = st.number_input("LDH (U/L)", min_value=50.0, max_value=2000.0, value=220.0, key=f"{prefix}_ldh")
 
+    # Dizionario strutturato da passare allo state globale e a utils per il referto
     paziente_info = {
         "nome": nome,
         "cognome": cognome,
@@ -85,7 +86,7 @@ def render_anagrafica_e_anamnesi_unificata(sigla_organo="V", prefix="vescica"):
         "ecog": ecog,
         "charlson_score": charlson_score,
         "g8_score": g8_score,
-        "aspettativa_vita_maggiore_10_anni": aspettativa_maggiore_10,
+        "aspettativa_vita_maggiore_10_anni": aspettativa_vita_maggiore_10_anni,
         "emocromo": {
             "wbc_tot": wbc_tot,
             "neutrofili_ass": neutrofili_ass,
@@ -112,7 +113,7 @@ def render_anagrafica_e_anamnesi_unificata(sigla_organo="V", prefix="vescica"):
 
 def formatta_anamnesi_per_pdf_unificata(paziente_info):
     """
-    Formatta in testo ordinato i dati dell'anamnesi e dell'emocromo avanzato per l'inclusione nel referto PDF.
+    Formatta in testo ordinato i dati dell'anamnesi per l'inclusione nel report unificato di utils.py.
     """
     emo = paziente_info.get("emocromo", {})
     emat = paziente_info.get("ematochimici", {})
