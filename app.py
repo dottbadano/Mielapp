@@ -1,7 +1,8 @@
 import streamlit as st
 import utils
-import anamnesi      # Modulo anamnesi
-import seconda_visita # Modulo seconda visita
+import anamnesi
+import seconda_visita
+import istologico
 
 # Configurazione della pagina Streamlit
 st.set_page_config(
@@ -13,7 +14,7 @@ st.set_page_config(
 # 1. Renderizza l'intestazione brandizzata in alto a destra (da utils.py)
 utils.render_header_brand()
 
-# 2. Inizializzazione dello Session State per i dati globali del paziente
+# 2. Inizializzazione dello Session State per i dati globali dei vari moduli
 if "paziente_info" not in st.session_state:
     st.session_state["paziente_info"] = {
         "nome": "",
@@ -27,6 +28,9 @@ if "paziente_info" not in st.session_state:
 
 if "seconda_visita_info" not in st.session_state:
     st.session_state["seconda_visita_info"] = {}
+
+if "istologico_info" not in st.session_state:
+    st.session_state["istologico_info"] = {}
 
 # 3. Sidebar per la navigazione tra i moduli del percorso clinico
 st.sidebar.title("Navigazione Myel-UP")
@@ -63,36 +67,42 @@ if scelta_modulo == "Anagrafica & Anamnesi":
 
 elif scelta_modulo == "Quadro Istologico / CRAB":
     st.header("Quadro Istologico & Criteri CRAB")
-    st.info("Modulo in fase di collegamento strutturato.")
+    st.write("Registrazione del referto bioptico/aspirato midollare e assetto citogenetico FISH.")
+    
+    st.session_state["istologico_info"] = istologico.render_esame_istologico(prefix="istologico")
 
 elif scelta_modulo == "Valutazione Trattamenti (Phase 3)":
     st.header("Valutazione Trattamenti (PERSEUS, MAIA, IKEMA)")
-    st.info("Modulo di supporto decisionale basato sui trial clinici randomizzati.")
+    st.info("Modulo di supporto decisionale basato sui trial clinici randomizzati in fase di integrazione.")
 
 elif scelta_modulo == "Seconda Visita & Rivalutazione":
     st.header("Seconda Visita & Accertamenti Diagnostici")
     st.write("Gestione degli esami di laboratorio avanzati, imaging e criteri SLIM-CRAB.")
     
-    # Richiama il modulo della seconda visita e ne salva i dati nello state
     st.session_state["seconda_visita_info"] = seconda_visita.render_seconda_visita(prefix="seconda_visita")
 
 elif scelta_modulo == "Follow-up & Report Unificato":
     st.header("Follow-up & Esportazione Report Unificato")
     st.write("Verifica il riepilogo globale dai moduli attivi e genera il referto clinico stampabile.")
     
-    # Recupera i testi formattati dai singoli moduli
+    # Recupera in modo sicuro i testi formattati dai singoli moduli
     testo_anamnesi_report = anamnesi.formatta_anamnesi_per_pdf_unificata(st.session_state["paziente_info"])
     
-    # Gestione sicura nel caso in cui la seconda visita sia stata compilata o meno
     if st.session_state.get("seconda_visita_info"):
         testo_seconda_visita_report = seconda_visita.formatta_seconda_visita_per_pdf(st.session_state["seconda_visita_info"])
     else:
-        testo_seconda_visita_report = "Seconda visita non ancora effettuata o registrata."
+        testo_seconda_visita_report = "Seconda visita non ancora registrata."
+
+    if st.session_state.get("istologico_info"):
+        testo_istologico_report = istologico.formatta_istologico_per_pdf(st.session_state["istologico_info"])
+    else:
+        testo_istologico_report = "Quadro istologico non ancora registrato."
 
     # Dizionario globale che unisce tutti i moduli per l'export
     moduli_per_report = {
         "Anamnesi & Clinica": testo_anamnesi_report,
         "Seconda Visita & Diagnostica": testo_seconda_visita_report,
+        "Quadro Istologico & FISH": testo_istologico_report,
         "Trattamenti": "Nessun trattamento registrato in questa sessione."
     }
     
