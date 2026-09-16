@@ -55,11 +55,11 @@ def render_anagrafica_e_anamnesi_unificata(sigla_organo="MM", prefix="mm"):
         st.session_state[id_key] = ""
 
     nuovo_id = genera_codice_univoco_organo(nome, cognome, sigla_organo)
-    if nuovo_id:
+    if nuovo_id and not st.session_state[id_key]:
         st.session_state[id_key] = nuovo_id
 
     with col_c:
-        codice_paziente = st.text_input("Codice Univoco / ID (Autogenerato)", key=id_key)
+        codice_paziente = st.text_input("Codice Univoco / ID (Richiamabile)", key=id_key)
 
     st.markdown("**Data di Nascita (GG / MM / AAAA)**")
     col_d1, col_d2, col_d3 = st.columns(3)
@@ -334,11 +334,11 @@ def render_anagrafica_e_anamnesi_unificata(sigla_organo="MM", prefix="mm"):
         if sieroproteica_alterata: motivo_biopsia.append("Componente monoclonale / FLC")
         if plasmacellule_sospette: motivo_biopsia.append("Sospetto plasmacellulare")
 
-    ulteriori_accertamenti_opzioni = []
+    ulteriori_accertamenti_scelta = "Nessuno (indicata biopsia)"
     if merita_biopsia:
         st.success("✅ **Indicazione Clinica:** Secondo le linee guida IMWG, il quadro clinico-laboratoristico **MÉRITA l'esecuzione di Biopsia Osteomidollare (BOM)** e aspirato midollare per tipizzazione clonale, citogenetica/FISH.")
     else:
-        st.warning("⚠️ **Indicazione Clinica:** Il paziente non soddisfa i criteri immediati per biopsia urgente, ma richiede approfondimenti.")
+        st.warning("⚠️ **Indicazione Clinica:** Il paziente non soddisfa i criteri immediati per biopsia urgente, ma richiede ulteriori approfondimenti.")
         ulteriori_accertamenti_opzioni = [
             "Dosaggio immunoglobuline sieriche e Proteinuria di Bence-Jones (24h)",
             "Rapporto Catene Leggere Libere Sieriche (FLC Kappa/Lambda)",
@@ -346,7 +346,7 @@ def render_anagrafica_e_anamnesi_unificata(sigla_organo="MM", prefix="mm"):
             "TC a basso dosaggio total-body (Whole-Body Low-Dose CT)",
             "Follow-up clinico-laboratoristico stretto a 3-6 mesi (Sospetta MGUS / Smoldering)"
         ]
-        scelta_accertamenti = st.selectbox(
+        ulteriori_accertamenti_scelta = st.selectbox(
             "Seleziona gli ulteriori accertamenti raccomandati dal quadro clinico:",
             ulteriori_accertamenti_opzioni,
             key=f"{prefix}_menu_accertamenti"
@@ -415,7 +415,7 @@ def render_anagrafica_e_anamnesi_unificata(sigla_organo="MM", prefix="mm"):
     return {
         "nome": nome.strip(),
         "cognome": cognome.strip(),
-        "id_univoco": codice_paziente.strip(),
+        "id_univoco": st.session_state[id_key].strip(),
         "data_nascita": str(data_nascita),
         "eta": eta,
         "peso": peso,
@@ -457,7 +457,7 @@ def render_anagrafica_e_anamnesi_unificata(sigla_organo="MM", prefix="mm"):
         "ggt": ggt,
         "merita_biopsia": merita_biopsia,
         "motivo_biopsia": motivo_biopsia,
-        "ulteriori_accertamenti_scelta": ulteriori_accertamenti_opzioni[0] if not merita_biopsia else "Nessuno (indicata biopsia)",
+        "ulteriori_accertamenti_scelta": ulteriori_accertamenti_scelta,
         "parere_medico": parere_medico,
         "opzione_terapeutica_scelta": opzione_terapeutica_scelta,
         "motivazione_disaccordo": motivazione_disaccordo.strip(),
@@ -478,15 +478,16 @@ def formatta_anamnesi_per_pdf_unificata(paziente_info):
 
     sezione_medico_legale = (
         f"VALUTAZIONE CLINICO-SPECIALISTICA E MOTIVAZIONE MEDICO-LEGALE:\n"
-        f"Il medico curante ha espresso parere di '{paziente_info.get('parere_medico', 'Concordo')}' rispetto all'algoritmo standard.\n"
-        f"Strategia terapeutica/gestionale impostata: {paziente_info.get('opzione_terapeutica_scelta', 'N/D')}.\n"
-        f"Motivazione clinica: {paziente_info.get('motivazione_disaccordo', 'Nessuna discordanza motivata')}"
+        f"• Parere del medico rispetto all'algoritmo standard: {paziente_info.get('parere_medico', 'Concordo')}\n"
+        f"• Strategia terapeutica/gestionale impostata: {paziente_info.get('opzione_terapeutica_scelta', 'N/D')}\n"
+        f"• Motivazione clinica della scelta: {paziente_info.get('motivazione_disaccordo', 'Nessuna discordanza motivata (concorde con le linee guida standard)')}"
     )
 
     righe = [
+        f"================================================================================",
         f"REFERTO CLINICO SPECIALISTICO ONCO-HEMATOLOGICAL EVALUATION",
-        f"--------------------------------------------------------------------------------",
-        f"ID Paziente / Codice Univoco: {paziente_info.get('id_univoco', 'N/D')}",
+        f"================================================================================",
+        f"Codice Univoco Paziente (ID): {paziente_info.get('id_univoco', 'N/D')}",
         f"Generalità: {paziente_info.get('cognome', '')} {paziente_info.get('nome', '')} | Data di Nascita: {paziente_info.get('data_nascita', 'N/D')} (Età: {paziente_info.get('eta', 'N/D')} anni)",
         f"Parametri Antropometrici: Peso {paziente_info.get('peso', 'N/D')} kg | Altezza {paziente_info.get('altezza', 'N/D')} cm | BMI {paziente_info.get('bmi', 'N/D')}",
         f"Performance Status (ECOG): {paziente_info.get('ecog', 'N/D')}",
@@ -514,7 +515,7 @@ def formatta_anamnesi_per_pdf_unificata(paziente_info):
         f"5. VALIDAZIONE MEDICO-LEGALE E TERAPEUTICA:",
         f"{sezione_medico_legale}",
         f"",
-        f"Note di supporto e contesto sociale: {paziente_info.get('caregiver', 'Non valutato')}."
+        f"Note di supporto e contesto sociale: {paziente_info.get('caregiver', 'Non valutato)}."
     ]
 
     return "\n".join(righe)
