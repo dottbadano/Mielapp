@@ -11,7 +11,6 @@ def render_follow_up(trattamento_info, prefix="follow_up"):
     regime = trattamento_info.get("regime_scelto", "Non specificato")
     mantenimento = trattamento_info.get("mantenimento", "Nessun mantenimento")
     linea = trattamento_info.get("linea_terapia", "")
-    eleggibilita = trattamento_info.get("eleggibilita_trapianto", "")
 
     st.markdown(f"**Contesto di derivazione:** Regime `{regime}` | Mantenimento: `{mantenimento}`")
 
