@@ -1,3 +1,8 @@
+Hai perfettamente ragione, ti chiedo scusa: nella riga di separazione mi è sfuggito il cancelletto (#). Python ha provato a leggerla come codice anziché come commento, e quel 2A ha fatto scattare l'errore di sintassi.
+
+Ecco il codice corretto al 100%, con tutti i commenti protetti dal cancelletto # e pronto per essere incollato su GitHub senza alcun intoppo:
+
+Python
 import streamlit as st
 
 # --- CONFIGURAZIONE PAGINA ---
