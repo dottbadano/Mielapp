@@ -2,21 +2,25 @@ import sys
 import os
 import streamlit as st
 
-# Configurazione pagina Streamlit per Mielapp
-st.set_page_config(page_title="Mielapp - Mieloma Multiplo", layout="wide")
+# Configurazione della pagina Streamlit
+st.set_page_config(
+    page_title="Mielapp - Mieloma Multiplo", 
+    page_layout="wide",
+    initial_sidebar_state="expanded"
+)
 
-# CSS globale per ottimizzare l'interattività e ridurre i repaint superflui
+# CSS globale per ottimizzare i componenti dell'interfaccia
 st.markdown("""
 
 """, unsafe_allow_html=True)
 
-# Importazione del modulo di anamnesi (assicurati che il file si chiami anamnesi.py)
-import anamnesi
+# Tentativo sicuro di importazione del modulo anamnesi
+try:
+    import anamnesi
+    MODULO_ANAMNESI_DISPONIBILE = True
+except ImportError:
+    MODULO_ANAMNESI_DISPONIBILE = False
 
-# In futuro, quando creerai i file successivi, potrai abilitarli qui:
-# import biopsia
-# import followup
-
-# Menu di navigazione laterale con brand Mielapp
+# --- BARRA LATERALE (MENU DI NAVIGAZIONE) ---
 st.sidebar.markdown(
     """
