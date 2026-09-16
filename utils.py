@@ -8,9 +8,25 @@ def render_header_brand():
     with col2:
         st.markdown(
             """
-st.markdown(
-        f"""
-            st.markdown(
+            <div style="text-align: right; padding: 10px; background-color: #f0f2f6; border-radius: 8px;">
+                <span style="font-size: 12px; color: #555;">Versione App</span><br>
+                <strong style="font-size: 16px; color: #0d6efd;">v3.5 - Cloud</strong>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+    st.markdown("---")
+
+def crea_box_paziente_corrente(paziente_info):
+    nome = paziente_info.get("nome", "N/D")
+    cognome = paziente_info.get("cognome", "N/D")
+    id_univoco = paziente_info.get("id_univoco", "MM-0001")
+    eta = paziente_info.get("eta", "N/D")
+    ecog = paziente_info.get("ecog", "N/D")
+    charlson = paziente_info.get("charlson_score", "N/D")
+    g8 = paziente_info.get("g8_score", "N/D")
+
+    st.markdown(
         f"""
         <div style="padding: 12px 18px; background-color: #e8f4fd; border-left: 5px solid #0d6efd; border-radius: 4px; margin-bottom: 20px;">
             <span style="font-size: 14px; color: #084298;"><b>Paziente in carico:</b> {cognome} {nome} (ID: <b>{id_univoco}</b>)</span><br>
@@ -23,7 +39,9 @@ st.markdown(
         </div>
         """,
         unsafe_allow_html=True
-                def genera_struttura_referto_unificato(moduli_per_report):
+    )
+
+def genera_struttura_referto_unificato(moduli_per_report):
     header_referto = (
         "==================================================\n"
         "             MYEL-UP CLINICAL REPORT             \n"
@@ -44,4 +62,3 @@ st.markdown(
     )
     
     return header_referto + corpo_referto + footer_referto
-    )
