@@ -51,7 +51,7 @@ def render_scelta_trattamento(paziente_info, prefix="trattamenti"):
             regime_scelto = st.selectbox(
                 "Regime di Induzione/Consolidamento (1° Linea TE):",
                 [
-                    "Dara-VRd (Daratuzumab + Bortezomib + Lenalidomide + Desametasone)",
+                    "Dara-VRd (Daratuzumab + Bortezomib + Lenalidomide + Desametasone) - [Prima Scelta Linee Guida]",
                     "VRd (Bortezomib + Lenalidomide + Desametasone)",
                     "Dara-VTd (Daratuzumab + Bortezomib + Talidomide + Desametasone)",
                     "VTd (Bortezomib + Talidomide + Desametasone)"
@@ -71,7 +71,7 @@ def render_scelta_trattamento(paziente_info, prefix="trattamenti"):
             regime_scelto = st.selectbox(
                 "Regime di Prima Linea (1° Linea TTE - Non Eleggibile):",
                 [
-                    "Dara-Rd (Daratuzumab + Lenalidomide + Desametasone)",
+                    "Dara-Rd (Daratuzumab + Lenalidomide + Desametasone) - [Prima Scelta Linee Guida]",
                     "VRd-Lite (Bortezomib ridotto + Lenalidomide + Desametasone)",
                     "Dara-VMP (Daratuzumab + Melfalan + Prednisone + Bortezomib)",
                     "Rd (Lenalidomide + Desametasone a dosi aggiustate)"
@@ -92,8 +92,8 @@ def render_scelta_trattamento(paziente_info, prefix="trattamenti"):
         regime_scelto = st.selectbox(
             "Regime per Mieloma Recidivato/Refrattario (RRMM):",
             [
-                "Dara-Kd (Daratuzumab + Carfilzomib + Desametasone)",
-                "Isa-Kd (Isatuximab + Carfilzomib + Desametasone)",
+                "Dara-Kd (Daratuzumab + Carfilzomib + Desametasone) - [Prima Scelta Linee Guida]",
+                "Isa-Kd (Isatuximab + Carfilzomib + Desametasone) - [Prima Scelta Linee Guida]",
                 "Kd-d (Carfilzomib + Desametasone + Daratuzumab / Pomalidomide)",
                 "Isa-Pd (Isatuximab + Pomalidomide + Desametasone)",
                 "Dara-Vd (Daratuzumab + Bortezomib + Desametasone)",
@@ -104,7 +104,7 @@ def render_scelta_trattamento(paziente_info, prefix="trattamenti"):
         )
         # Associazione studio di fase 3
         if "Dara-Kd" in regime_scelto:
-            studio_fase_3 = "CASTOR (per Dara-Vd) / CANDOR (per Dara-Kd - Fase 3)"
+            studio_fase_3 = "CANDOR (Studio di fase 3: Dara-Kd vs Kd)"
         elif "Isa-Kd" in regime_scelto:
             studio_fase_3 = "IKEMA (Studio di fase 3: Isatuximab + Carfilzomib + Desametasone)"
         elif "Isa-Pd" in regime_scelto:
@@ -115,6 +115,13 @@ def render_scelta_trattamento(paziente_info, prefix="trattamenti"):
             studio_fase_3 = "Trial clinici registrativi avanzati / Real World Evidence"
 
     st.markdown(f"📌 **Evidenza Scientifica / Studio di Fase 3 di Riferimento:** `{studio_fase_3}`")
+
+    # Controllo di conformità alle linee guida ed eventuale Alert per regimi di seconda scelta
+    if "Prima Scelta" not in regime_scelto:
+        st.warning(
+            "⚠️ **ALERT CLINICO:** Il regime selezionato non corrisponde allo standard di prima scelta raccomandato dalle linee guida internazionali vigenti (IMWG/NCCN) per questo setting. "
+            "Il regime è comunque associato all'evidenza clinica dello studio di fase 3 sopra indicato ed è utilizzabile in base a specifiche opzioni di seconda scelta o personalizzazioni cliniche."
+        )
 
     # Gestione del Mantenimento
     mantenimento = st.selectbox(
