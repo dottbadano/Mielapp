@@ -68,14 +68,14 @@ def render_anagrafica_e_anamnesi_unificata(sigla_organo="MM", prefix="mm"):
         data_nascita = datetime(int(anno_n), int(mese_n), int(giorno_n)).date()
     except ValueError:
         data_nascita = datetime(1960, 1, 1).date()
-        st.warning("Data de nascita non valida. Impostata temporaneamente a 01/01/1960.")
+        st.warning("Data di nascita non valida. Impostata temporaneamente a 01/01/1960.")
 
     oggi = datetime.today().date()
     eta = oggi.year - data_nascita.year - ((oggi.month, oggi.day) < (data_nascita.month, data_nascita.day))
 
     st.info(f"📊 **Età Anagrafica:** {eta} anni")
 
-    # --- CAREGIVER E SUPPORTO SPOSTATO ALL'INIZIO ---
+    # --- CAREGIVER E SUPPORTO ---
     st.markdown("---")
     st.markdown("### 🤝 Rete di Supporto e Caregiver")
     caregiver_supporto = st.selectbox(
@@ -123,17 +123,146 @@ def render_anagrafica_e_anamnesi_unificata(sigla_organo="MM", prefix="mm"):
             key=f"{prefix}_iadl"
         )
 
+    # --- SEZIONE VALUTAZIONE GERIATRICA INTERATTIVA (G8 & CHARLSON) ---
     st.markdown("---")
-    st.markdown("### 🧠 Valutazione Geriatrica & Comorbilità")
-    with st.expander("Screening G8 e Charlson Index", expanded=False):
-        g8_score = st.slider("Punteggio G8 (0-17)", 0, 17, 14, key=f"{prefix}_g8_slider")
-        charlson_base = st.number_input("Charlson Comorbidity Index (base)", 0, 15, 2, key=f"{prefix}_charlson_base")
+    st.markdown("### 🧠 Valutazione Geriatrica & Comorbilità (Compilazione Guidata)")
+
+    with st.expander("📋 Screening G8 (Compilazione interattiva dei 8 item)", expanded=False):
+        g8_q1 = st.selectbox(
+            "1. L'assunzione di cibo è diminuita negli ultimi 3 mesi a causa di perdita d'appetito, problemi digestivi, difficoltà di masticazione o deglutizione?",
+            [
+                ("0 - Grave diminuzione dell'apporto di cibo", 0),
+                ("1 - Moderata diminuzione dell'apporto di cibo", 1),
+                ("2 - Nessuna diminuzione dell'apporto di cibo", 2)
+            ],
+            format_func=lambda x: x[0], key=f"{prefix}_g8_1"
+        )[1]
+
+        g8_q2 = st.selectbox(
+            "2. Perdita di peso recente (< 3 mesi):",
+            [
+                ("0 - Perdita di peso > 3 kg", 0),
+                ("1 - Non sa / Non quantificabile", 1),
+                ("2 - Perdita di peso tra 1 e 3 kg", 2),
+                ("3 - Nessuna perdita di peso", 3)
+            ],
+            format_func=lambda x: x[0], key=f"{prefix}_g8_2"
+        )[1]
+
+        g8_q3 = st.selectbox(
+            "3. Mobilità e deambulazione:",
+            [
+                ("0 - Costretto a letto o in poltrona", 0),
+                ("1 - Capace di uscire ma non autosufficiente negli spostamenti", 1),
+                ("2 - Esce normalmente / Autonomo", 2)
+            ],
+            format_func=lambda x: x[0], key=f"{prefix}_g8_3"
+        )[1]
+
+        g8_q4 = st.selectbox(
+            "4. Malattia acuta o stress psicologico recente (ultimi 3 mesi):",
+            [
+                ("0 - Sì", 0),
+                ("2 - No", 2)
+            ],
+            format_func=lambda x: x[0], key=f"{prefix}_g8_4"
+        )[1]
+
+        g8_q5 = st.selectbox(
+            "5. Problemi neuropsicologici (demenza, depressione, decadimento cognitivo):",
+            [
+                ("0 - Demenza o depressione grave", 0),
+                ("1 - Demenza o depressione moderata", 1),
+                ("2 - Nessun problema psicologico", 2)
+            ],
+            format_func=lambda x: x[0], key=f"{prefix}_g8_5"
+        )[1]
+
+        g8_q6 = st.selectbox(
+            "6. Indice di Massa Corporea (BMI):",
+            [
+                ("0 - BMI < 19 kg/m²", 0),
+                ("1 - BMI tra 19 e 21 kg/m²", 1),
+                ("2 - BMI tra 21 e 23 kg/m²", 2),
+                ("3 - BMI > 23 kg/m²", 3)
+            ],
+            format_func=lambda x: x[0], key=f"{prefix}_g8_6"
+        )[1]
+
+        # Item 7: L'età viene calcolata automaticamente dall'anagrafica
+        if eta >= 85:
+            g8_q7 = 0
+            st.text("7. Età del paziente: 85 anni o più (Punteggio G8 assegnato: 0)")
+        elif eta >= 80:
+            g8_q7 = 1
+            st.text("7. Età del paziente: tra 80 e 84 anni (Punteggio G8 assegnato: 1)")
+        elif eta >= 75:
+            g8_q7 = 2
+            st.text("7. Età del paziente: tra 75 e 79 anni (Punteggio G8 assegnato: 2)")
+        else:
+            g8_q7 = 3
+            st.text("7. Età del paziente: inferiore a 75 anni (Punteggio G8 assegnato: 3)")
+
+        g8_q8 = st.selectbox(
+            "8. Numero di farmaci assunti quotidianamente (> 3 prescrizioni):",
+            [
+                ("0 - Più di 3 farmaci al giorno", 0),
+                ("1 - Fino a 3 farmaci al giorno", 1)
+            ],
+            format_func=lambda x: x[0], key=f"{prefix}_g8_8"
+        )[1]
+
+        g8_score = g8_q1 + g8_q2 + g8_q3 + g8_q4 + g8_q5 + g8_q6 + g8_q7 + g8_q8
+        st.info(f"📋 **Punteggio G8 Calcolato dalle risposte:** `{g8_score}/17`")
+
+    with st.expander("🏥 Charlson Comorbidity Index (Selezione delle comorbilità)", expanded=False):
+        st.write("Spunta le condizioni patologiche presenti nell'anamnesi del paziente:")
+        
+        c_infarto = st.checkbox("Infarto miocardico pregresso (1 punto)", key=f"{prefix}_cc_inf")
+        c_ scompenso = st.checkbox("Scompenso cardiaco congestizio (1 punto)", key=f"{prefix}_cc_sco")
+        c_vascolare = st.checkbox("Malattia vascolare periferica (1 punto)", key=f"{prefix}_cc_vas")
+        c_c, cereb = st.checkbox("Malattia cerebrovascolare / TIA / Ictus (1 punto)", key=f"{prefix}_cc_cer")
+        c_demenza = st.checkbox("Demenza (1 punto)", key=f"{prefix}_cc_dem")
+        c_bpco = st.checkbox("Malattia polmonare cronica / BPCO (1 punto)", key=f"{prefix}_cc_bpc")
+        c_connettivo = st.checkbox("Malattia del tessuto connettivo / Reumatologica (1 punto)", key=f"{prefix}_cc_con")
+        c_ulcera = st.checkbox("Ulcera peptica (1 punto)", key=f"{prefix}_cc_ulc")
+        c_fegato_ lieve = st.checkbox("Epatopatia cronica lieve (1 punto)", key=f"{prefix}_cc_feg_l")
+        c_diabete = st.checkbox("Diabete mellito (senza danno d'organo = 1 pto / con danno = 2 pti)", [("Assente", 0), ("Senza complicanze d'organo (1 pto)", 1), ("Con complicanze d'organo (2 pti)", 2)], format_func=lambda x: x[0], key=f"{prefix}_cc_diab")
+        
+        c_emiplegia = st.checkbox("Emiplegia o paraplegia (2 punti)", key=f"{prefix}_cc_emi")
+        c_renale = st.checkbox("Malattia renale moderata o grave (2 punti)", key=f"{prefix}_cc_ren")
+        c_tumore_solido = st.checkbox("Tumore solido localizzato (2 punti)", key=f"{prefix}_cc_tum")
+        c_leucemia = st.checkbox("Leucemia, Linfoma o Mieloma (2 punti)", key=f"{prefix}_cc_emato")
+        c_fegato_grave = st.checkbox("Epatopatia cronica grave / Cirrosi (3 punti)", key=f"{prefix}_cc_feg_g")
+        c_metastasi = st.checkbox("Tumore solido metastatico (6 punti)", key=f"{prefix}_cc_met")
+        c_aids = st.checkbox("Infezione da HIV / AIDS (6 punti)", key=f"{prefix}_cc_aids")
+
+        # Calcolo base Charlson dalle spunte
+        charlson_base = (
+            (1 if c_infarto else 0) +
+            (1 if c_scompenso else 0) +
+            (1 if c_vascolare else 0) +
+            (1 if c_c, cereb else 0) +
+            (1 if c_demenza else 0) +
+            (1 if c_bpco else 0) +
+            (1 if c_connettivo else 0) +
+            (1 if c_ulcera else 0) +
+            (1 if c_fegato_lieve else 0) +
+            c_diabete[1] +
+            (2 if c_emiplegia else 0) +
+            (2 if c_renale else 0) +
+            (2 if c_tumore_solido else 0) +
+            (2 if c_leucemia else 0) +
+            (3 if c_fegato_grave else 0) +
+            (6 if c_metastasi else 0) +
+            (6 if c_aids else 0)
+        )
 
     bonus_eta_charlson = 4 if eta >= 80 else (3 if eta >= 70 else (2 if eta >= 60 else (1 if eta >= 50 else 0)))
     charlson_totale = charlson_base + bonus_eta_charlson
     aspettativa_ok, charlson_ponderato = stima_aspettativa_di_vita(eta, charlson_totale, g8_score, ecog)
 
-    st.info(f"📈 **CCI Corretto:** `{charlson_totale}` | **G8:** `{g8_score}/17`")
+    st.info(f"📈 **CCI Base (Comorbilità):** `{charlson_base}` | **Bonus Età:** `+{bonus_eta_charlson}` | **CCI Totale Corretto:** `{charlson_totale}` | **G8:** `{g8_score}/17`")
 
     # --- SEZIONE 1: ESAMI DI LABORATORIO (SANGUE E URINE) ---
     st.markdown("---")
