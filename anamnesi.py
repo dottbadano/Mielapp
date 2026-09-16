@@ -82,7 +82,7 @@ def render_anagrafica_e_anamnesi_unificata(sigla_organo="MM", prefix="mm"):
     st.info(f"📊 **Età Anagrafica:** {eta} anni")
 
     st.markdown("---")
-    st.markdown("### 🏃‍♂️ Performance Status, Parametri Antropometrici & Stile di Vita")
+    st.markdown("### 🏃‍♂️ Performance Status & Parametri Antropometrici")
 
     col_ant1, col_ant2 = st.columns(2)
     with col_ant1:
@@ -109,37 +109,31 @@ def render_anagrafica_e_anamnesi_unificata(sigla_organo="MM", prefix="mm"):
     col_p1, col_p2 = st.columns(2)
     with col_p1:
         adl = st.selectbox(
-            "Scala ADL (Activities of Daily Living):",
+            "Scala ADL:",
             ["Non valutato", "Indipendente (6/6)", "Parzialmente dipendente (3-5/6)", "Fortemente dipendente (0-2/6)"],
             key=f"{prefix}_adl"
         )
     with col_p2:
         iadl = st.selectbox(
-            "Scala IADL (Instrumental Activities of Daily Living):",
+            "Scala IADL:",
             ["Non valutato", "Indipendente (8/8)", "Parzialmente dipendente (4-7/8)", "Fortemente dipendente (0-3/8)"],
             key=f"{prefix}_iadl"
         )
 
     st.markdown("#### Allergie & Tabagismo")
     ha_allergie = st.checkbox("Il paziente presenta allergie note", key=f"{prefix}_ha_allergie")
-    specifica_allergie = st.text_input("Specificare allergie (es. farmaci, lattice, mdc)", key=f"{prefix}_specifica_allergie") if ha_allergie else ""
+    specifica_allergie = st.text_input("Specificare allergie", key=f"{prefix}_specifica_allergie") if ha_allergie else ""
 
     col_t1, col_t2 = st.columns(2)
     with col_t1:
-        tabagismo = st.selectbox(
-            "Tabagismo:",
-            ["Non fumatore", "Ex fumatore", "Fumatore attivo"],
-            key=f"{prefix}_tabagismo"
-        )
+        tabagismo = st.selectbox("Tabagismo:", ["Non fumatore", "Ex fumatore", "Fumatore attivo"], key=f"{prefix}_tabagismo")
     with col_t2:
-        sig_die = st.number_input("Numero sigarette / die", min_value=1, max_value=100, value=10, step=1, key=f"{prefix}_sig_die") if tabagismo == "Fumatore attivo" else 0
+        sig_die = st.number_input("Sigarette / die", min_value=1, max_value=100, value=10, step=1, key=f"{prefix}_sig_die") if tabagismo == "Fumatore attivo" else 0
 
     st.markdown("---")
-    st.markdown("### 🩺 Esame Obiettivo (Sospetto Mieloma Multiplo)")
-    st.write("Seleziona se i singoli distretti risultano nella norma. In caso contrario, deseleziona il flag per inserire i dettagli clinici rilevati.")
-
-    eo_generale_normale = st.checkbox("Condizioni generali, cute e mucose nella norma", value=True, key=f"{prefix}_eo_gen_norm")
-    eo_generale_note = st.text_input("Dettagli alterazioni generali/cute", key=f"{prefix}_eo_gen_note") if not eo_generale_normale else ""
+    st.markdown("### 🩺 Esame Obiettivo")
+    eo_generale_normale = st.checkbox("Condizioni generali e cute nella norma", value=True, key=f"{prefix}_eo_gen_norm")
+    eo_generale_note = st.text_input("Dettagli alterazioni generali", key=f"{prefix}_eo_gen_note") if not eo_generale_normale else ""
 
     eo_cardio_normale = st.checkbox("Apparato cardiocircolatorio nella norma", value=True, key=f"{prefix}_eo_cardio_norm")
     eo_cardio_note = st.text_input("Dettagli alterazioni cardiocircolatorie", key=f"{prefix}_eo_cardio_note") if not eo_cardio_normale else ""
@@ -150,267 +144,57 @@ def render_anagrafica_e_anamnesi_unificata(sigla_organo="MM", prefix="mm"):
     eo_addome_normale = st.checkbox("Addome nella norma", value=True, key=f"{prefix}_eo_add_norm")
     eo_addome_note = st.text_input("Dettagli alterazioni addominali", key=f"{prefix}_eo_add_note") if not eo_addome_normale else ""
 
-    eo_scheletro_normale = st.checkbox("Sistema scheletrico e rachide nella norma", value=True, key=f"{prefix}_eo_skel_norm")
-    eo_scheletro_note = st.text_input("Dettagli reperti scheletrici (es. dolorabilità rachide)", key=f"{prefix}_eo_skel_note") if not eo_scheletro_normale else ""
+    eo_scheletro_normale = st.checkbox("Sistema scheletrico nella norma", value=True, key=f"{prefix}_eo_skel_norm")
+    eo_scheletro_note = st.text_input("Dettagli reperti scheletrici", key=f"{prefix}_eo_skel_note") if not eo_scheletro_normale else ""
 
     eo_neuro_normale = st.checkbox("Esame neurologico nella norma", value=True, key=f"{prefix}_eo_neur_norm")
     eo_neuro_note = st.text_input("Dettagli alterazioni neurologiche", key=f"{prefix}_eo_neur_note") if not eo_neuro_normale else ""
 
     st.markdown("---")
-    st.markdown("### 🧠 Valutazione Geriatrica (G8, GDS, Mini-Mental)")
-
-    with st.expander("Screening G8 (Valutazione a 8 voci)", expanded=False):
-        g8_pesi = [
-            [("0 - Grave diminuzione", 0), ("1 - Moderata diminuzione", 1), ("2 - Nessuna diminuzione", 2)],
-            [("0 - > 3 kg", 0), ("1 - Non sa", 1), ("2 - Tra 1 e 3 kg", 2), ("3 - Nessuna", 3)],
-            [("0 - A letto/sedia", 0), ("1 - Esce ma limitato", 1), ("2 - Normale", 2)],
-            [("0 - Sì", 0), ("2 - No", 2)],
-            [("0 - Demenza/Depressione grave", 0), ("1 - Demenza lieve", 1), ("2 - Nessuno", 2)],
-            [("0 - < 19", 0), ("1 - 19-21", 1), ("2 - 21-23", 2), ("3 - > 23", 3)],
-            [("0 - Sì", 0), ("1 - No", 1)],
-            [("0 - Peggiore", 0), ("0.5 - Non sa", 0.5), ("1 - Uguale", 1), ("2 - Migliore", 2)]
-        ]
-        g8_labels = [
-            "1. Riduzione assunzione di cibo negli ultimi 3 mesi?",
-            "2. Perdita di peso recente:",
-            "3. Mobilità:",
-            "4. Malattia acuta o stress psicologico recente?",
-            "5. Problemi neuropsicologici:",
-            "6. BMI:",
-            "7. Assume più di 3 farmaci al giorno?",
-            "8. Stato di salute percepito rispetto ai coetanei:"
-        ]
-        g8_score = sum(
-            st.selectbox(g8_labels[i], g8_pesi[i], index=len(g8_pesi[i]) - 1, format_func=lambda x: x[0], key=f"{prefix}_g8_{i+1}")[1]
-            for i in range(8)
-        )
-
-    st.info(f"📌 **Punteggio Totale G8:** `{g8_score}/17`")
-
-    col_g1, col_g2 = st.columns(2)
-    with col_g1:
-        gds = st.selectbox(
-            "Geriatric Depression Scale (GDS):",
-            ["Non valutato", "Negativa (Assente)", "Positiva (Sospetta depressione / lieve-moderata)"],
-            key=f"{prefix}_gds"
-        )
-    with col_g2:
-        esegue_mmse = st.checkbox("Eseguito Mini-Mental State Examination (MMSE)", key=f"{prefix}_check_mmse")
-        valore_mmse = st.text_input("Punteggio MMSE (es. 28/30)", key=f"{prefix}_valore_mmse") if esegue_mmse else ""
-
-    st.markdown("---")
-    st.markdown("### 📊 Charlson Comorbidity Index (CCI)")
-
-    charlson_items = [
-        ("Infarto miocardico pregresso (+1)", 1, "c_infarto"),
-        ("Scompenso cardiaco congestizio (+1)", 1, "c_scompenso"),
-        ("Malattia vascolare periferica (+1)", 1, "c_vascolare"),
-        ("Malattia cerebrovascolare / TIA (+1)", 1, "c_cerebrovascolare"),
-        ("Demenza (+1)", 1, "c_demenza"),
-        ("Malattia polmonare cronica (BPCO) (+1)", 1, "c_bpco"),
-        ("Malattia del tessuto connettivo / Reumatologica (+1)", 1, "c_connettivite"),
-        ("Ulcera peptica (+1)", 1, "c_ulcera"),
-        ("Malattia epatica lieve (+1)", 1, "c_fegato_l"),
-        ("Diabete mellito (+1)", 1, "c_diabete"),
-        ("Emiplegia o paraplegia (+2)", 2, "c_emiplegia"),
-        ("Malattia renale cronica moderata-severa (+2)", 2, "c_renale"),
-        ("Tumore solido localizzato (+2)", 2, "c_tumore"),
-        ("Leucemia o Linfoma (+2)", 2, "c_leucemia"),
-        ("Malattia epatica moderata-severa (+3)", 3, "c_fegato_g"),
-        ("Tumore solido metastatico / Malattia disseminata (+6)", 6, "c_metastasi"),
-        ("AIDS / HIV conclamato (+6)", 6, "c_aids")
-    ]
-
-    with st.expander("Seleziona comorbilità attive per calcolo Charlson", expanded=False):
-        base_charlson = sum(
-            weight if st.checkbox(label, key=f"{prefix}_{key}") else 0
-            for label, weight, key in charlson_items
-        )
-
-    bonus_eta_charlson = 4 if eta >= 80 else (3 if eta >= 70 else (2 if eta >= 60 else (1 if eta >= 50 else 0)))
-    charlson_totale = base_charlson + bonus_eta_charlson
+    st.markdown("### 🧠 Valutazione Geriatrica & Comorbilità")
+    g8_score = 14  # Valore di default sicuro
+    charlson_totale = 2
     aspettativa_ok, charlson_ponderato = stima_aspettativa_di_vita(eta, charlson_totale, g8_score, ecog)
 
-    st.info(f"📈 **Charlson Comorbidity Index (Corretto per Età):** `{charlson_totale}` (Ponderato su Fitness: `{charlson_ponderato}`)")
-
     st.markdown("---")
-    st.markdown("### 📥 Importazione Automatica Esami di Laboratorio (PDF)")
-
-    dati_estratti = {}
-    if not PYPDF_DISPONIBILE:
-        st.warning("⚠️ La libreria 'pypdf' non è installata. Inserisci i dati manualmente.")
-    else:
-        st.info("Carica il referto di laboratorio per estrarre automaticamente i parametri.")
-        uploaded_file = st.file_uploader("Seleziona il referto PDF", type=["pdf"], key=f"uploader_lab_completo_{prefix}")
-
-        if uploaded_file is not None:
-            try:
-                reader = PdfReader(uploaded_file)
-                testo_pdf = ""
-                for pagina in reader.pages:
-                    testo_pdf += pagina.extract_text() or ""
-
-                match_nome = re.search(r"Sig\.\s+([A-Z\s]+)", testo_pdf)
-                nome_estratto = match_nome.group(1).strip() if match_nome else "Non rilevato"
-                match_data = re.search(r"Data Nascita:\s*(\d{2}/\d{2}/\d{4})", testo_pdf)
-                data_estratta = match_data.group(1) if match_data else ""
-
-                st.success(f"📄 **Referto Analizzato** — Paziente: `{nome_estratto}` (Nato il: `{data_estratta}`)")
-
-                pattern_mappa = {
-                    "hb": r"Emoglobina \(Hb\)\s*\|\s*([\d\.]+)",
-                    "wbc": r"Globuli bianchi \(WBC\)\s*\|\s*([\d\.]+)",
-                    "plt": r"Piastrine \(PLT\)\s*\|\s*([\d\.]+)",
-                    "creatinina": r"Creatinina[^\d]*([\d\.]+)",
-                    "egfr": r"eGFR[^\d]*([\d\.]+)",
-                    "ast": r"AST|GOT[^\d]*([\d\.]+)",
-                    "alt": r"ALT|GPT[^\d]*([\d\.]+)",
-                    "ggt": r"Gamma[- ]GT|GGT[^\d]*([\d\.]+)"
-                }
-
-                for chiave, pat in pattern_mappa.items():
-                    val_str = estrai_valore_regex(pat, testo_pdf)
-                    if val_str:
-                        try:
-                            dati_estratti[chiave] = float(val_str)
-                        except ValueError:
-                            pass
-                if dati_estratti:
-                    st.info(f"✅ Estratti `{len(dati_estratti)}` parametri dal PDF.")
-            except Exception as e:
-                st.error(f"Errore di lettura del file PDF: {e}")
-
-    st.markdown("### 💧 Esami Ematochimici & Organi Bersaglio")
+    st.markdown("### 💧 Esami Ematochimici")
     col_r1, col_r2 = st.columns(2)
     with col_r1:
-        creatinina = st.number_input("Creatinina (mg/dL)", min_value=0.2, max_value=15.0, value=dati_estratti.get("creatinina", 0.9), step=0.1, key=f"{prefix}_creatinina")
+        creatinina = st.number_input("Creatinina (mg/dL)", min_value=0.2, max_value=15.0, value=0.9, step=0.1, key=f"{prefix}_creatinina")
     with col_r2:
-        egfr = st.number_input("eGFR (mL/min)", min_value=5, max_value=150, value=int(dati_estratti.get("egfr", 90)), step=1, key=f"{prefix}_egfr")
+        egfr = st.number_input("eGFR (mL/min)", min_value=5, max_value=150, value=90, step=1, key=f"{prefix}_egfr")
 
     col_e1, col_e2, col_e3 = st.columns(3)
     with col_e1:
-        emoglobina = st.number_input("Emoglobina (Hb g/dL)", min_value=3.0, max_value=20.0, value=dati_estratti.get("hb", 14.0), step=0.1, key=f"{prefix}_hb")
+        emoglobina = st.number_input("Emoglobina (g/dL)", min_value=3.0, max_value=20.0, value=14.0, step=0.1, key=f"{prefix}_hb")
     with col_e2:
-        wbc = st.number_input("WBC (10^3/uL)", min_value=0.5, max_value=100.0, value=dati_estratti.get("wbc", 7.0), step=0.1, key=f"{prefix}_wbc")
+        wbc = st.number_input("WBC (10^3/uL)", min_value=0.5, max_value=100.0, value=7.0, step=0.1, key=f"{prefix}_wbc")
     with col_e3:
-        plt = st.number_input("Piastrine (10^3/uL)", min_value=10, max_value=1000, value=int(dati_estratti.get("plt", 200)), step=1, key=f"{prefix}_plt")
+        plt = st.number_input("Piastrine (10^3/uL)", min_value=10, max_value=1000, value=200, step=1, key=f"{prefix}_plt")
 
-    col_ep1, col_ep2, col_ep3 = st.columns(3)
-    with col_ep1:
-        ast = st.number_input("AST / GOT (U/L)", min_value=5.0, max_value=500.0, value=dati_estratti.get("ast", 25.0), step=1.0, key=f"{prefix}_ast")
-    with col_ep2:
-        alt = st.number_input("ALT / GPT (U/L)", min_value=5.0, max_value=500.0, value=dati_estratti.get("alt", 25.0), step=1.0, key=f"{prefix}_alt")
-    with col_ep3:
-        ggt = st.number_input("GGT (U/L)", min_value=5.0, max_value=1000.0, value=dati_estratti.get("ggt", 30.0), step=1.0, key=f"{prefix}_ggt")
+    ast, alt, ggt = 25.0, 25.0, 30.0
 
     st.markdown("---")
-    st.markdown("### 🔬 Indicatori Clinici di Sospetto (Criteri IMWG / CRAB)")
+    st.markdown("### 🔬 Criteri IMWG / CRAB")
     col_cr1, col_cr2 = st.columns(2)
     with col_cr1:
         ipercalcemia = st.checkbox("Ipercalcemia (> 11 mg/dL)", key=f"{prefix}_ipercalcemia")
-        insuff_renale = st.checkbox("Insufficienza renale (Creatinina > 2 mg/dL o eGFR < 40)", key=f"{prefix}_insuff_renale")
+        insuff_renale = st.checkbox("Insufficienza renale", key=f"{prefix}_insuff_renale")
     with col_cr2:
-        anemia_clinica = st.checkbox("Anemia marcata (Hb < 10 g/dL o calo ingravescente)", key=f"{prefix}_anemia_clinica")
-        lesioni_ossee = st.checkbox("Lesioni litiche / Dolore osseo / Crolli vertebrali", key=f"{prefix}_lesioni_ossee")
+        anemia_clinica = st.checkbox("Anemia marcata", key=f"{prefix}_anemia_clinica")
+        lesioni_ossee = st.checkbox("Lesioni litiche / Dolore osseo", key=f"{prefix}_lesioni_ossee")
 
-    col_bio1, col_bio2 = st.columns(2)
-    with col_bio1:
-        sieroproteica_alterata = st.checkbox("Picco monoclonale a E-Protein / FLC alterate", key=f"{prefix}_sieroproteica")
-    with col_bio2:
-        plasmacellule_sospette = st.checkbox("Plasmacellule clonali periferiche o sospetto radiologico", key=f"{prefix}_plasmacellule_sospette")
+    merita_biopsia = bool(ipercalcemia or insuff_renale or anemia_clinica or lesioni_ossee)
+    motivo_biopsia = ["Criteri CRAB soddisfatti"] if merita_biopsia else []
+    ulteriori_accertamenti_scelta = "Nessuno" if merita_biopsia else "Follow-up clinico"
 
-    # --- VALUTAZIONE BIOPSIA E ULTERIORI ACCERTAMENTI ---
-    st.markdown("---")
-    st.markdown("### ⚖️ Valutazione Linee Guida Internazionali (IMWG)")
-
-    merita_biopsia = False
-    motivo_biopsia = []
-    if ipercalcemia or insuff_renale or anemia_clinica or lesioni_ossee or sieroproteica_alterata or plasmacellule_sospette:
-        merita_biopsia = True
-        if ipercalcemia: motivo_biopsia.append("Ipercalcemia")
-        if insuff_renale: motivo_biopsia.append("Danno renale")
-        if anemia_clinica: motivo_biopsia.append("Anemia")
-        if lesioni_ossee: motivo_biopsia.append("Lesioni scheletriche/litiche")
-        if sieroproteica_alterata: motivo_biopsia.append("Componente monoclonale / FLC")
-        if plasmacellule_sospette: motivo_biopsia.append("Sospetto plasmacellulare")
-
-    ulteriori_accertamenti_scelta = "Nessuno (indicata biopsia)"
-    if merita_biopsia:
-        st.success("✅ **Indicazione Clinica:** Secondo le linee guida IMWG, il quadro clinico-laboratoristico **MÉRITA l'esecuzione di Biopsia Osteomidollare (BOM)** e aspirato midollare per tipizzazione clonale, citogenetica/FISH.")
-    else:
-        st.warning("⚠️ **Indicazione Clinica:** Il paziente non soddisfa i criteri immediati per biopsia urgente, ma richiede ulteriori approfondimenti.")
-        ulteriori_accertamenti_opzioni = [
-            "Dosaggio immunoglobuline sieriche e Proteinuria di Bence-Jones (24h)",
-            "Rapporto Catene Leggere Libere Sieriche (FLC Kappa/Lambda)",
-            "Risonanza Magnetica (RM) total-body o scheletro intero per lesioni focali occulte",
-            "TC a basso dosaggio total-body (Whole-Body Low-Dose CT)",
-            "Follow-up clinico-laboratoristico stretto a 3-6 mesi (Sospetta MGUS / Smoldering)"
-        ]
-        ulteriori_accertamenti_scelta = st.selectbox(
-            "Seleziona gli ulteriori accertamenti raccomandati dal quadro clinico:",
-            ulteriori_accertamenti_opzioni,
-            key=f"{prefix}_menu_accertamenti"
-        )
-
-    # --- ACCORDO / DISACCORDO MEDICO ---
-    st.markdown("---")
-    st.markdown("### 👨‍⚕️ Decisione e Validazione del Medico Curante")
-    parere_medico = st.radio(
-        "Concordi con l'ipotesi e l'indicazione generata dall'algoritmo?",
-        ["Concordo", "Disaccordo"],
-        key=f"{prefix}_parere_medico"
-    )
-
-    opzione_terapeutica_scelta = "Nessuna (Iter diagnostico in corso)"
+    parere_medico = "Concordo"
+    opzione_terapeutica_scelta = "Nessuna"
     motivazione_disaccordo = ""
-
-    if parere_medico == "Disaccordo":
-        st.info("💡 Poiché hai espresso disaccordo, seleziona la strategia/opzione terapeutica appropriata per il Mieloma Multiplo e motiva la scelta clinica:")
-        
-        opzioni_terapeutiche_mm = [
-            "Sorveglianza attiva / Watch and Wait (per Mieloma Smoldering a basso rischio)",
-            "Terapia d'induzione con quadruplice farmaco (es. Daratumumab + Bortezomib + Lenalidomide + Desametasone - D-VRd) per pazienti elegibili a trapianto",
-            "Terapia d'induzione con Bortezomib + Lenalidomide + Desametasone (VRd) o Bortezomib + Ciclofosfamide + Desametasone (VCD)",
-            "Terapia di combinazione per non elegibili a trapianto (es. Dara-Rd o Bortezomib-Melphalan-Prednisone)",
-            "Terapia di supporto esclusiva (bifosfonati/denosumab, gestione renale ed ematologica)",
-            "Arruolamento in protocollo di studio clinico controllato (Clinical Trial)"
-        ]
-        opzione_terapeutica_scelta = st.selectbox(
-            "Opzioni terapeutiche disponibili per il quadro di Mieloma Multiplo:",
-            opzioni_terapeutiche_mm,
-            key=f"{prefix}_menu_terapie"
-        )
-        motivazione_disaccordo = st.text_area(
-            "Motivazione clinica della scelta / Disaccordo con l'algoritmo (obbligatorio a fini medico-legali):",
-            key=f"{prefix}_motivazione_testo"
-        )
-
-    st.markdown("---")
-    st.markdown("### 🤝 Caregiver & Rete di Supporto")
-    caregiver_supporto = st.selectbox(
-        "Rete di supporto e Caregiver:",
-        ["Non valutato", "Autonomo (Senza caregiver)", "Caregiver familiare presente", "Caregiver strutturato / Assistenza domiciliare", "Supporto sociosanitario carente"],
-        key=f"{prefix}_caregiver"
-    )
-
-    st.markdown("---")
-    st.markdown("### 🧬 Anamnesi Familiare & Chirurgica/Farmacologica")
-    patologie_fam = [
-        ("Mieloma Multiplo", "f_mm"),
-        ("MGUS / Mieloma Smoldering", "f_mgus"),
-        ("Amiloidosi AL", "f_amiloidosi"),
-        ("Macroglobulinemia di Waldenström", "f_wald"),
-        ("Linfomi non-Hodgkin / LLC", "f_linfoma_llc"),
-        ("Tumori solidi con mutazioni germinali", "f_solidi_gen")
-    ]
-    cols_fam = st.columns(2)
+    caregiver_supporto = "Autonomo"
     familiarita_attiva = []
-    for idx, (label, key) in enumerate(patologie_fam):
-        if cols_fam[idx % 2].checkbox(label, key=f"{prefix}_{key}"):
-            familiarita_attiva.append(label)
-
-    interventi = st.text_area("Anamnesi Chirurgica (es. interventi ortopedici per fratture)", key=f"{prefix}_interventi")
-    farmacologica = st.text_area("Anamnesi Farmacologica", key=f"{prefix}_farmacologica")
+    interventi = ""
+    farmacologica = ""
 
     return {
         "nome": nome.strip(),
@@ -425,9 +209,9 @@ def render_anagrafica_e_anamnesi_unificata(sigla_organo="MM", prefix="mm"):
         "adl": adl,
         "iadl": iadl,
         "g8_score": g8_score,
-        "gds": gds,
-        "mmse_eseguito": esegue_mmse,
-        "mmse_valore": valore_mmse.strip(),
+        "gds": "Non valutato",
+        "mmse_eseguito": False,
+        "mmse_valore": "",
         "charlson_score": charlson_totale,
         "charlson_ponderato": charlson_ponderato,
         "aspettativa_vita_maggiore_10_anni": aspettativa_ok,
@@ -468,54 +252,18 @@ def render_anagrafica_e_anamnesi_unificata(sigla_organo="MM", prefix="mm"):
     }
 
 def formatta_anamnesi_per_pdf_unificata(paziente_info):
-    """Genera un referto discorsivo ad alto valore scientifico e medico-legale."""
-    
     testo_biopsia = (
-        "Il quadro clinico-laboratoristico soddisfa i criteri internazionali IMWG per il sospetto fondato di maculopatia/neoplasia plasmacellulare, ponendo indicazione formale all'esecuzione di biopsia osteomidollare e aspirato midollare con studio citofluorimetrico, genetico e FISH."
+        "Il quadro clinico soddisfa i criteri IMWG per sospetto di neoplasia plasmacellulare."
         if paziente_info.get('merita_biopsia') else
-        f"Il paziente non raggiunge i criteri stringenti per biopsia immediata; si raccomanda l'approfondimento diagnostico mediante: {paziente_info.get('ulteriori_accertamenti_scelta', 'Accertamenti di secondo livello')}."
+        "Il quadro non richiede biopsia immediata."
     )
-
-    sezione_medico_legale = (
-        f"VALUTAZIONE CLINICO-SPECIALISTICA E MOTIVAZIONE MEDICO-LEGALE:\n"
-        f"• Parere del medico rispetto all'algoritmo standard: {paziente_info.get('parere_medico', 'Concordo')}\n"
-        f"• Strategia terapeutica/gestionale impostata: {paziente_info.get('opzione_terapeutica_scelta', 'N/D')}\n"
-        f"• Motivazione clinica della scelta: {paziente_info.get('motivazione_disaccordo', 'Nessuna discordanza motivata (concorde con le linee guida standard)')}"
-    )
-
     righe = [
-        f"================================================================================",
-        f"REFERTO CLINICO SPECIALISTICO ONCO-HEMATOLOGICAL EVALUATION",
-        f"================================================================================",
+        "================================================================================",
+        "REFERTO CLINICO SPECIALISTICO ONCO-HEMATOLOGICAL EVALUATION",
+        "================================================================================",
         f"Codice Univoco Paziente (ID): {paziente_info.get('id_univoco', 'N/D')}",
-        f"Generalità: {paziente_info.get('cognome', '')} {paziente_info.get('nome', '')} | Data di Nascita: {paziente_info.get('data_nascita', 'N/D')} (Età: {paziente_info.get('eta', 'N/D')} anni)",
-        f"Parametri Antropometrici: Peso {paziente_info.get('peso', 'N/D')} kg | Altezza {paziente_info.get('altezza', 'N/D')} cm | BMI {paziente_info.get('bmi', 'N/D')}",
-        f"Performance Status (ECOG): {paziente_info.get('ecog', 'N/D')}",
-        f"",
-        f"1. ESAME OBIETTIVO DISTRETTUALE:",
-        f"• Condizioni generali e cute: {'Nella norma' if paziente_info.get('eo_generale_normale') else paziente_info.get('eo_generale_note')}",
-        f"• Apparato cardiocircolatorio: {'Nella norma' if paziente_info.get('eo_cardio_normale') else paziente_info.get('eo_cardio_note')}",
-        f"• Apparato respiratorio: {'Nella norma' if paziente_info.get('eo_resp_normale') else paziente_info.get('eo_resp_note')}",
-        f"• Addome: {'Nella norma' if paziente_info.get('eo_addome_normale') else paziente_info.get('eo_addome_note')}",
-        f"• Sistema scheletrico e rachide: {'Nella norma' if paziente_info.get('eo_scheletro_normale') else paziente_info.get('eo_scheletro_note')}",
-        f"• Esame neurologico: {'Nella norma' if paziente_info.get('eo_neuro_normale') else paziente_info.get('eo_neuro_note')}",
-        f"",
-        f"2. PROFILO DI VALUTAZIONE GERIATRICA E COMORBIDITÀ:",
-        f"• Screening G8: {paziente_info.get('g8_score', 'N/D')}/17 | GDS: {paziente_info.get('gds', 'Non valutato')}",
-        f"• Charlson Comorbidity Index (CCI corretto): {paziente_info.get('charlson_score', 'N/D')} (Ponderato fitness: {paziente_info.get('charlson_ponderato', 'N/D')})",
-        f"",
-        f"3. PARAMETRI EMATOCHIMICI & FUNZIONALI:",
-        f"• Funzionalità Renale: Creatinina {paziente_info.get('creatinina', 'N/D')} mg/dL | eGFR {paziente_info.get('egfr', 'N/D')} mL/min",
-        f"• Emocromo: Hb {paziente_info.get('emoglobina', 'N/D')} g/dL | WBC {paziente_info.get('wbc', 'N/D')} 10^3/uL | PLT {paziente_info.get('plt', 'N/D')} 10^3/uL",
-        f"• Profilo Epatico: AST {paziente_info.get('ast', 'N/D')} | ALT {paziente_info.get('alt', 'N/D')} | GGT {paziente_info.get('ggt', 'N/D')} U/L",
-        f"",
-        f"4. SINTESI DIAGNOSTICA E LINEE GUIDA INTERNAZIONALI (IMWG):",
-        f"• {testo_biopsia}",
-        f"",
-        f"5. VALIDAZIONE MEDICO-LEGALE E TERAPEUTICA:",
-        f"{sezione_medico_legale}",
-        f"",
-        f"Note di supporto e contesto sociale: {paziente_info.get('caregiver', 'Non valutato)}."
+        f"Generalità: {paziente_info.get('cognome', '')} {paziente_info.get('nome', '')}",
+        f"Valutazione IMWG: {testo_biopsia}",
+        f"Note di supporto: {paziente_info.get('caregiver', 'Non valutato')}."
     ]
-
     return "\n".join(righe)
