@@ -10,13 +10,13 @@ try:
 except ImportError:
     PYPDF_DISPONIBILE = False
 
-def genera_codice_univoco_organo(nome, cognome, organo_lettera="P"):
+def genera_codice_univoco_organo(nome, cognome, organo_lettera="MM"):
     n = nome.strip()
     c = cognome.strip()
     if len(n) < 2 or len(c) < 2:
         return ""
 
-    return f"{n[0].upper()}{c[1].upper()}{c[0].upper()}{n[1].upper()}-{''.join(random.choices(string.digits, k=6))}-{organo_lettera.upper()[:1]}"
+    return f"{n[0].upper()}{c[1].upper()}{c[0].upper()}{n[1].upper()}-{''.join(random.choices(string.digits, k=6))}-{organo_lettera.upper()[:2]}"
 
 def stima_aspettativa_di_vita(eta, charlson_score, g8_score, ecog_str):
     """
