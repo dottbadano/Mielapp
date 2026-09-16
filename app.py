@@ -1,10 +1,10 @@
 import streamlit as st
-import anamnesi  # Importa il modulo che abbiamo appena creato
+import anamnesi  # Importa il modulo anamnesi.py
 
 st.title("Gestione Clinica Mieloma Multiplo")
 
-# Richiama la funzione unificata per la raccolta dati e la valutazione
-dati_paziente = anamnesi.render_anamnesi_e_valutazione(sigla_organo="MM", prefix="mm")
+# Richiama la funzione corretta definita in anamnesi.py
+dati_paziente = anamnesi.render_anagrafica_e_anamnesi_unificata(sigla_organo="MM", prefix="mm")
 
 # Pulsante per la generazione del referto discorsivo medico-legale
 if st.button("Genera Referto PDF / Testuale"):
